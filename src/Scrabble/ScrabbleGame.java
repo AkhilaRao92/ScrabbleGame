@@ -5,7 +5,7 @@ import java.util.*;
 public class ScrabbleGame {
 
 	
-	private static HashMap<String,Integer> dictMap = new HashMap<String,Integer>(); 
+	private static LinkedHashMap<String,Integer> dictMap = new LinkedHashMap<String,Integer>(); 
 	
 	public static int sequenceMatching(String a, String b) {
 	    int[][] lengths = new int[a.length()+1][b.length()+1];
@@ -92,7 +92,8 @@ public class ScrabbleGame {
 	
 	public static void main(String[] args) throws IOException {
 		
-		String lettersOnRack = "AAHINGT";
+		String lettersOnRack = "LLASM";
+		lettersOnRack = lettersOnRack.toUpperCase();
 		String sortedInput = sort(lettersOnRack);
 		loadSowpods(sortedInput);
 		String word = getWordwithMaximumScore();
