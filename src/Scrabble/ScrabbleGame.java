@@ -8,19 +8,22 @@ public class ScrabbleGame {
 	private static LinkedHashMap<String,Integer> dictMap = new LinkedHashMap<String,Integer>(); 
 	
 	public static int sequenceMatching(String a, String b) {
-	    int[][] lengths = new int[a.length()+1][b.length()+1];
+        int[][] lengths = new int[a.length() + 1][b.length() + 1];
 
-	   
-	 for (int i = 0; i < a.length(); i++)
-	        for (int j = 0; j < b.length(); j++)
-	            if (a.charAt(i) == b.charAt(j))
-	                lengths[i+1][j+1] = lengths[i][j] + 1;
-	            else
-	                lengths[i+1][j+1] = Math.max(lengths[i+1][j], lengths[i][j+1]);
-	 
-	     return lengths[a.length()][b.length()];
-
-	}
+        for (int i = 0; i <= a.length(); i++) {
+            for (int j = 0; j <= b.length(); j++) {
+                if (i == 0 || j == 0) {
+                    lengths[i][j] = 0;
+                } else if (a.charAt(i - 1) == b.charAt(j - 1)) {
+                    lengths[i][j] = lengths[i - 1][j - 1] + 1;
+                } else {
+                    lengths[i][j]
+                            = Math.max(lengths[i - 1][j], lengths[i][j - 1]);
+                }
+            }
+        }
+        return lengths[a.length()][b.length()];
+    }
 	
 
 	public static int calculateScore(String word){
