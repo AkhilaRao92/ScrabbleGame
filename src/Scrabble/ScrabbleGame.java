@@ -1,13 +1,7 @@
 package Scrabble;
 
-import java.awt.AlphaComposite;
 import java.io.*;
 import java.util.*;
-
-
-
-
-
 public class ScrabbleGame {
 
 	
@@ -15,15 +9,16 @@ public class ScrabbleGame {
 	
 	public static int sequenceMatching(String a, String b) {
 	    int[][] lengths = new int[a.length()+1][b.length()+1];
-	 
+
+	   
 	 for (int i = 0; i < a.length(); i++)
 	        for (int j = 0; j < b.length(); j++)
 	            if (a.charAt(i) == b.charAt(j))
 	                lengths[i+1][j+1] = lengths[i][j] + 1;
 	            else
-	                lengths[i+1][j+1] =
-	                    Math.max(lengths[i+1][j], lengths[i][j+1]);
-	     return lengths[a.length()-1][b.length()-1];
+	                lengths[i+1][j+1] = Math.max(lengths[i+1][j], lengths[i][j+1]);
+	 
+	     return lengths[a.length()][b.length()];
 
 	}
 	
@@ -51,13 +46,14 @@ public class ScrabbleGame {
 		
 		while(dis.available() != 0){
 			String wordInSowpods = dis.readLine(); 
-			int lengthOfMatchedSeq = sequenceMatching(sort(wordInSowpods),inputChar);
 			
+			int lengthOfMatchedSeq = sequenceMatching(sort(wordInSowpods),inputChar);
 			if(lengthOfMatchedSeq == wordInSowpods.length()){
 				
 				int scoreOfWords  = calculateScore(wordInSowpods);
+				
 				dictMap.put(wordInSowpods, scoreOfWords);
-				System.out.println(wordInSowpods);
+				
 			}
 			
 			
@@ -90,6 +86,7 @@ public class ScrabbleGame {
 			
 		}
 		
+		System.out.println("Max Score : "+ maxScore);
 		return maxScoreWord;
 	}
 	
@@ -100,6 +97,7 @@ public class ScrabbleGame {
 		loadSowpods(sortedInput);
 		String word = getWordwithMaximumScore();
 		System.out.println(word);
+		
 		
 		
 		
