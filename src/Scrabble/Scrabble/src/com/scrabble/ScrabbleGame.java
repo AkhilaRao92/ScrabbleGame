@@ -2,6 +2,8 @@ package scrabble;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ScrabbleGame {
 
@@ -55,35 +57,59 @@ public class ScrabbleGame {
         return dictionary;
     }
 
-    public static boolean rules(String word, int numLeftSpaces, int numRightSpaces, String constraintLetter, String bconstraintLetter, int betweenSpace) {
+    public static boolean rules(String generatedWord, int numLeftSpaces, int numRightSpaces, String constraintLetter, String bconstraintLetter, int betweenSpace) {
+        String word = new String(generatedWord);
+        int offsetIndex = 0;
+        while (word.contains(constraintLetter) && word.length() > constraintLetter.length() + bconstraintLetter.length() + betweenSpace) {
+            //System.out.println(word + " " + constraintLetter + " " + betweenSpace + " " + bconstraintLetter);
+            if (word.indexOf(constraintLetter) <= numLeftSpaces + offsetIndex) {
+                int endLength = bconstraintLetter.length() > 0 ? betweenSpace + 1 : 0;
 
-        boolean result = false;
-        
-        if (word.contains(constraintLetter)) {
-            if (word.indexOf(constraintLetter) <= numLeftSpaces) {
-                int endLength = bconstraintLetter.length()>0?betweenSpace+1:0;
-                if ((word.length() - word.indexOf(constraintLetter) - 1) <= numRightSpaces + endLength ) {
-                    
-                    if(bconstraintLetter.length() > 0){
-                        if ( (word.length() - word.indexOf(constraintLetter) - 1) >= betweenSpace+1 )
-                            result = true;
+                if ((word.length() - word.indexOf(constraintLetter) - 1) <= numRightSpaces + endLength) {
+
+                    if (bconstraintLetter.length() > 0) {
+                        if ((word.length() - word.indexOf(constraintLetter) - 1) >= betweenSpace + 1) {
+                            if (word.charAt(word.indexOf(constraintLetter) + betweenSpace + 1) == bconstraintLetter.charAt(0)) {
+                                return true;
+                            } else {
+                                offsetIndex += word.indexOf(constraintLetter);
+                                word = word.substring(word.indexOf(constraintLetter) + 1);
+                            }
+                        }
+                        else {
+                            return false;
+                        }
+                    } else {
+                        return true;
                     }
-                    else
-                        result = true;
+                } else {
+                    offsetIndex += word.indexOf(constraintLetter);
+                    word = word.substring(word.indexOf(constraintLetter) + 1);
                 }
+            } else {
+                return false;
             }
         }
-        if (bconstraintLetter.length() > 0 && result) {
-           
-           result = false;
-            if (word.indexOf(bconstraintLetter, word.indexOf(constraintLetter) + 1) == word.indexOf(constraintLetter) + 1 + betweenSpace ) {
-                    if ((word.length() - word.indexOf(bconstraintLetter) - 1) <= numRightSpaces) {
-                        result = true;
-                    }
-                }
-            }
-           
-        
+
+        return false;
+    }
+
+    public static boolean MatchRegExpr(String word, int numLeftSpaces, int numRightSpaces, String constraintLetter, String bconstraintLetter, int betweenSpace) {
+
+        boolean result = false;
+        String constraintRegExp = constraintLetter;
+        for (int i = 0; i < betweenSpace; i++) {
+            constraintRegExp = constraintRegExp + "[a-z]";
+        }
+        constraintRegExp = constraintRegExp + bconstraintLetter;
+        Pattern p = Pattern.compile(constraintRegExp);
+        Matcher m = p.matcher(word);
+        boolean b = m.matches();
+
+        if (b) {
+
+        }
+
         return result;
     }
 
@@ -114,14 +140,14 @@ public class ScrabbleGame {
 
                 String matchedString = lcs(inputString, sortedDictionaryWord);
                 if (matchedString.length() == sortedDictionaryWord.length() || matchedString.length() == sortedDictionaryWord.length() - 1) {
-                    if (rules(dictionaryWord, numLeftSpaces, numRightSpaces, constraintLetter,  bconstraintLetter,  betweenSpace)) {
+                    if (rules(dictionaryWord, numLeftSpaces, numRightSpaces, constraintLetter, bconstraintLetter, betweenSpace)) {
                         score = calculateScore(matchedString);
                     }
                 }
 
             }
 
-            if (score > max ) {
+            if (score > max) {
                 maxWord = dictionaryWord;
                 max = score;
             }
@@ -142,10 +168,10 @@ public class ScrabbleGame {
         return sum;
     }
 
-    public static void printResult( String result) {
+    public static void printResult(String result) {
 
         String[] splitString = result.split(",");
-        System.out.println( splitString[0] + " " + splitString[1]);
+        System.out.println(splitString[0] + " " + splitString[1]);
 
     }
 
@@ -155,16 +181,16 @@ public class ScrabbleGame {
         String fileName = "sowpods.txt";
         dictionary = readDictionary(fileName);
         Scanner sc = new Scanner(new FileReader("input.txt"));
-      
+
         while (sc.hasNextLine()) {
-              String constraint = new String("");
-        String scrambledWord = new String("");
-        int numLeftSpaces;
-        int numRightSpaces;
-        int betweenSpaces = 0;
-        String aconstraintLetter = "";
-        String bconstraintLetter = "";
-            constraint = new String("");
+            String constraint = new String("");
+            String scrambledWord = new String("");
+            int numLeftSpaces;
+            int numRightSpaces;
+            int betweenSpaces = 0;
+            String aconstraintLetter = "";
+            String bconstraintLetter = "";
+
             String[] input = sc.nextLine().split(" ");
             if (input.length > 1) {
                 constraint = input[0];
@@ -200,7 +226,7 @@ public class ScrabbleGame {
     }
 
     private static String processConstraintString(String constraint) {
-        String constraintLetter = constraint.replace("_", "");
+
         int leftSpace = 0;
         int rightSpace = 0;
         int betweenSpace = 0;
@@ -210,14 +236,14 @@ public class ScrabbleGame {
             leftSpace++;
             i++;
         }
-        aConstraint = constraint.substring(i, i+1 );
+        aConstraint = constraint.substring(i, i + 1);
         i++;
         while (i < constraint.length() && constraint.charAt(i) == '_') {
             betweenSpace++;
             i++;
         }
         if (i < constraint.length()) {
-            bConstraint = constraint.substring(i, i+1 );
+            bConstraint = constraint.substring(i, i + 1);
             i++;
 
             while (i < constraint.length() && constraint.charAt(i) == '_') {
